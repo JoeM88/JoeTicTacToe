@@ -2,35 +2,68 @@ package e.josephmolina.joetictactoe
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.GridLayout
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlin.math.ceil
 
 class MainActivity : AppCompatActivity() {
-    private val boardCells = Array(3) { arrayOfNulls<ImageView>(3) }
+    private val uiBoardCells = Array(3) { arrayOfNulls<ImageView>(3) }
+    var gameBoard = GameBoard()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        loadBoard()
+        loadUIBoard()
+        setRestartButton()
     }
 
-    private fun loadBoard() {
-        for (row in boardCells.indices) {
-            for (column in boardCells.indices) {
-                boardCells[row][column] = ImageView(this)
+    private fun setRestartButton() {
+        button_restart.setOnClickListener{
+            gameBoard = GameBoard()
+            text_view_result.text = ""
+            mapBoardToUI()
+        }
+    }
+
+    private fun mapBoardToUI() {
+        for (row in gameBoard.board.indices) {
+            for (column in gameBoard.board.indices) {
+                when (gameBoard.board[row][column]) {
+                    GameBoard.PLAYER -> {
+                        uiBoardCells[row][column]?.setImageResource(R.drawable.circle)
+                        uiBoardCells[row][column]?.isEnabled = false
+                    }
+
+                    GameBoard.COMPUTER -> {
+                        uiBoardCells[row][column]?.setImageResource(R.drawable.cross)
+                        uiBoardCells[row][column]?.isEnabled = false
+                    }
+                    else -> {
+                        uiBoardCells[row][column]?.setImageResource(0)
+                        uiBoardCells[row][column]?.isEnabled = true
+                    }
+                }
+            }
+        }
+    }
+
+    private fun loadUIBoard() {
+        for (row in uiBoardCells.indices) {
+            for (column in uiBoardCells.indices) {
+                uiBoardCells[row][column] = ImageView(this)
                 setCellDimensions(row, column)
                 setCellColor(row, column)
-                layout_board.addView(boardCells[row][column])
+                uiBoardCells[row][column]?.setOnClickListener(CellClickListener(row, column))
+                layout_board.addView(uiBoardCells[row][column])
             }
         }
     }
 
     private fun setCellDimensions(row: Int, column: Int) {
-        boardCells[row][column]?.layoutParams = GridLayout.LayoutParams().apply {
+        uiBoardCells[row][column]?.layoutParams = GridLayout.LayoutParams().apply {
             rowSpec = GridLayout.spec(row)
             columnSpec = GridLayout.spec(column)
             width = 300
@@ -43,11 +76,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setCellColor(row: Int, column: Int) {
-        boardCells[row][column]?.setBackgroundColor(
+        uiBoardCells[row][column]?.setBackgroundColor(
             ContextCompat.getColor(
                 this,
                 R.color.colorPrimary
             )
         )
+    }
+
+    inner class CellClickListener(private val row: Int, private val col: Int): View.OnClickListener{
+        override fun onClick(p0: View?) {
+            val cell = Cell(row, col)
+            gameBoard.placeMove(cell, GameBoard.PLAYER)
+            mapBoardToUI()
+        }
     }
 }
