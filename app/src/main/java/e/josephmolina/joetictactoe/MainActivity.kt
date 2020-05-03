@@ -85,16 +85,29 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    inner class CellClickListener(private val row: Int, private val col: Int): View.OnClickListener{
-        override fun onClick(p0: View?) {
-            val cell = Cell(row, col)
-            gameBoard.placeMove(cell, GameBoard.PLAYER)
+    private fun setGameStatusTitle() {
+        when {
+            gameBoard.isComputerWinner() -> text_view_result.text = getString(R.string.computer_won)
+            gameBoard.isPlayerWinner() -> text_view_result.text = getString(R.string.player_won)
+            gameBoard.isGameATie() -> text_view_result.text = getString(R.string.game_tied)
+        }
+    }
 
-            if (gameBoard.availableCell.isNotEmpty()) {
-                val computerCell = gameBoard.availableCell[Random.nextInt(0, gameBoard.availableCell.size)]
-                gameBoard.placeMove(computerCell, GameBoard.COMPUTER)
+    inner class CellClickListener(private val row: Int, private val col: Int) :
+        View.OnClickListener {
+        override fun onClick(p0: View?) {
+            if (!gameBoard.isGameOver) {
+                val cell = Cell(row, col)
+                gameBoard.placeMove(cell, GameBoard.PLAYER)
+
+                if (gameBoard.availableCells.isNotEmpty()) {
+                    val computerCell =
+                        gameBoard.availableCells[Random.nextInt(0, gameBoard.availableCells.size)]
+                    gameBoard.placeMove(computerCell, GameBoard.COMPUTER)
+                }
+                mapBoardToUI()
             }
-            mapBoardToUI()
+            setGameStatusTitle()
         }
     }
 }

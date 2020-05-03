@@ -7,7 +7,39 @@ class GameBoard {
         const val COMPUTER = "X"
     }
 
-    val availableCell: List<Cell>
+    val isGameOver: Boolean
+        get() = isComputerWinner() || isPlayerWinner() || isGameATie()
+
+     fun isComputerWinner(): Boolean {
+        return checkDiagonals(COMPUTER) || checkRows(COMPUTER) || checkColumns(COMPUTER)
+    }
+
+     fun isPlayerWinner(): Boolean {
+        return checkDiagonals(PLAYER) || checkRows(PLAYER) || checkColumns(PLAYER)
+    }
+
+     fun isGameATie(): Boolean {
+        return availableCells.isEmpty()
+    }
+
+    private fun checkColumns(player: String): Boolean {
+        return (board[0][0] == player && board[1][0] == player && board[2][0] == player ||
+                board[0][1] == player && board[1][1] == player && board[2][1] == player ||
+                board[0][2] == player && board[1][2] == player && board[2][2] == player)
+    }
+
+    private fun checkRows(player: String): Boolean {
+        return (board[0][0] == player && board[0][1] == player && board[0][2] == player ||
+                board[1][0] == player && board[1][1] == player && board[1][2] == player ||
+                board[2][0] == player && board[2][1] == player && board[2][2] == player)
+    }
+
+    private fun checkDiagonals(player: String): Boolean {
+        return (board[0][0] == player && board[1][1] == player && board[2][2] == player
+                || board[0][2] == player && board[1][1] == player && board[2][0] == player)
+    }
+
+    val availableCells: List<Cell>
         get() {
             val cells = mutableListOf<Cell>()
             for (row in board.indices) {
