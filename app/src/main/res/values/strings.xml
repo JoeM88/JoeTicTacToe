@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">JoeTicTacToe</string>
+    <string name="computer_won">Computer Won</string>
+    <string name="player_won">Player Won</string>
+    <string name="game_tied">Game Tied</string>
 </resources>
