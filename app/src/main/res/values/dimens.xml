@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="cellWidth"  type="integer">300</item>
+    <item name="cellHeight"  type="integer">300</item>
+    <item name="cellMargin"  type="integer">5</item>
+</resources>

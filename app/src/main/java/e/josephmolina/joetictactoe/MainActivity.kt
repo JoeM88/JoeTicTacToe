@@ -7,17 +7,16 @@ import android.widget.GridLayout
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlin.random.Random
 
 class MainActivity : AppCompatActivity() {
-    private val uiBoardCells = Array(3) { arrayOfNulls<ImageView>(3) }
+    private val visualBoardCells = Array(3) { arrayOfNulls<ImageView>(3) }
     var gameBoard = GameBoard()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        loadUIBoard()
+        setupUiBoard()
         setRestartButton()
     }
 
@@ -34,50 +33,51 @@ class MainActivity : AppCompatActivity() {
             for (column in gameBoard.board.indices) {
                 when (gameBoard.board[row][column]) {
                     GameBoard.PLAYER -> {
-                        uiBoardCells[row][column]?.setImageResource(R.drawable.circle)
-                        uiBoardCells[row][column]?.isEnabled = false
+                        visualBoardCells[row][column]?.setImageResource(R.drawable.circle)
+                        visualBoardCells[row][column]?.isEnabled = false
                     }
 
                     GameBoard.COMPUTER -> {
-                        uiBoardCells[row][column]?.setImageResource(R.drawable.cross)
-                        uiBoardCells[row][column]?.isEnabled = false
+                        visualBoardCells[row][column]?.setImageResource(R.drawable.cross)
+                        visualBoardCells[row][column]?.isEnabled = false
                     }
                     else -> {
-                        uiBoardCells[row][column]?.setImageResource(0)
-                        uiBoardCells[row][column]?.isEnabled = true
+                        visualBoardCells[row][column]?.setImageResource(0)
+                        visualBoardCells[row][column]?.isEnabled = true
                     }
                 }
             }
         }
     }
 
-    private fun loadUIBoard() {
-        for (row in uiBoardCells.indices) {
-            for (column in uiBoardCells.indices) {
-                uiBoardCells[row][column] = ImageView(this)
+    private fun setupUiBoard() {
+        for (row in visualBoardCells.indices) {
+            for (column in visualBoardCells.indices) {
+                visualBoardCells[row][column] = ImageView(this)
                 setCellDimensions(row, column)
                 setCellColor(row, column)
-                uiBoardCells[row][column]?.setOnClickListener(CellClickListener(row, column))
-                layout_board.addView(uiBoardCells[row][column])
+                visualBoardCells[row][column]?.setOnClickListener(CellClickListener(row, column))
+                layout_board.addView(visualBoardCells[row][column])
             }
         }
     }
 
     private fun setCellDimensions(row: Int, column: Int) {
-        uiBoardCells[row][column]?.layoutParams = GridLayout.LayoutParams().apply {
+        visualBoardCells[row][column]?.layoutParams = GridLayout.LayoutParams().apply {
             rowSpec = GridLayout.spec(row)
             columnSpec = GridLayout.spec(column)
-            width = 300
-            height = 300
-            bottomMargin = 5
-            topMargin = 5
-            leftMargin = 5
-            rightMargin = 5
+
+            width = resources.getInteger(R.integer.cellWidth)
+            height = resources.getInteger(R.integer.cellHeight)
+            bottomMargin = resources.getInteger(R.integer.cellMargin)
+            topMargin = resources.getInteger(R.integer.cellMargin)
+            leftMargin = resources.getInteger(R.integer.cellMargin)
+            rightMargin = resources.getInteger(R.integer.cellMargin)
         }
     }
 
     private fun setCellColor(row: Int, column: Int) {
-        uiBoardCells[row][column]?.setBackgroundColor(
+        visualBoardCells[row][column]?.setBackgroundColor(
             ContextCompat.getColor(
                 this,
                 R.color.colorPrimary
@@ -100,10 +100,9 @@ class MainActivity : AppCompatActivity() {
                 val cell = Cell(row, col)
                 gameBoard.placeMove(cell, GameBoard.PLAYER)
 
-                if (gameBoard.availableCells.isNotEmpty()) {
-                    val computerCell =
-                        gameBoard.availableCells[Random.nextInt(0, gameBoard.availableCells.size)]
-                    gameBoard.placeMove(computerCell, GameBoard.COMPUTER)
+                gameBoard.miniMax(0, GameBoard.COMPUTER)
+                gameBoard.computersMove?.let {
+                    gameBoard.placeMove(it, GameBoard.COMPUTER)
                 }
                 mapBoardToUI()
             }
