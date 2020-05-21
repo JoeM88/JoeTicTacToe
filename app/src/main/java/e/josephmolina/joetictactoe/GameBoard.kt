@@ -6,7 +6,6 @@ import kotlin.math.min
 class GameBoard {
     val board = Array(3) { arrayOfNulls<String>(3) }
     var computersMove: Cell? = null
-
     private val availableCells: List<Cell>
         get() {
             val cells = mutableListOf<Cell>()
@@ -63,44 +62,35 @@ class GameBoard {
 
         if (availableCells.isEmpty()) return 0
 
-        // Why ?
-        var min = Integer.MAX_VALUE
-        var max = Integer.MIN_VALUE
+        var minimizerMove = Integer.MAX_VALUE
+        var maximizerMove = Integer.MIN_VALUE
 
         for (cell in availableCells.indices) {
             val currentCell = availableCells[cell]
             if (player == COMPUTER) {
                 placeMove(currentCell, COMPUTER)
                 val currentScore = miniMax(depth + 1, PLAYER)
-                // Returns the greater number of the two
-                max = max(currentScore, max)
+                maximizerMove = max(currentScore, maximizerMove)
 
-                // Dont know what this is doing
-                if (currentScore >= 0) {
-                    if (depth == 0) computersMove = currentCell
+                // Are we back at the top?
+                if (currentScore >= 0 && depth == 0) {
+                   computersMove = currentCell
                 }
 
-                if (currentScore == 1) {
-                    board[currentCell.row][currentCell.column] = ""
-                    break
-                }
+                undoMove(currentCell.row, currentCell.column)
 
-                if (cell == availableCells.size - 1 && max < 0) {
-                    if (depth == 0) computersMove = currentCell
-                }
             } else if (player == PLAYER) {
                 placeMove(currentCell, PLAYER)
                 val currentScore = miniMax(depth + 1, COMPUTER)
-                min = min(currentScore, min)
-
-                if (min == -1) {
-                    board[currentCell.row][currentCell.column] = ""
-                    break
-                }
+                minimizerMove = min(currentScore, minimizerMove)
+                undoMove(currentCell.row, currentCell.column)
             }
-            board[currentCell.row][currentCell.column] = ""
         }
-        return if (player == COMPUTER) max else min
+        return if (player == COMPUTER) maximizerMove else minimizerMove
+    }
+
+    private fun undoMove(row: Int, column: Int) {
+        board[row][column] = ""
     }
 
 

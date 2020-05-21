@@ -100,7 +100,7 @@ class MainActivity : AppCompatActivity() {
                 val cell = Cell(row, col)
                 gameBoard.placeMove(cell, GameBoard.PLAYER)
 
-                gameBoard.miniMax(0, GameBoard.COMPUTER)
+              gameBoard.miniMax(0, GameBoard.COMPUTER)
                 gameBoard.computersMove?.let {
                     gameBoard.placeMove(it, GameBoard.COMPUTER)
                 }
